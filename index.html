@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusHub • Comunidad Libre</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .title { font-family: 'Space Grotesk', sans-serif; }
+        .glass { background: rgba(15, 15, 35, 0.95); backdrop-filter: blur(24px); border: 1px solid rgba(167, 139, 250, 0.25); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-zinc-950 via-purple-950 to-black text-white min-h-screen">
+
+    <!-- Registro Obligatorio -->
+    <div id="registerModal" class="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+        <div class="glass rounded-3xl p-10 max-w-md w-full mx-4">
+            <h2 class="title text-4xl font-bold text-center mb-8">Bienvenido a NexusHub</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm mb-2">Nombre de usuario (sin groserías)</label>
+                    <input id="username" type="text" placeholder="Tu nombre" 
+                           class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-violet-500">
+                </div>
+                
+                <div>
+                    <label class="block text-sm mb-2">Fecha de nacimiento</label>
+                    <input id="birthdate" type="date" 
+                           class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-violet-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm mb-2">Captcha: ¿Cuánto es 8 + 5?</label>
+                    <input id="captcha" type="text" placeholder="13" 
+                           class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-5 py-4 focus:outline-none focus:border-violet-500">
+                </div>
+            </div>
+
+            <button onclick="completeRegister()" 
+                    class="mt-8 w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 py-5 rounded-2xl font-semibold text-lg">
+                Entrar a NexusHub
+            </button>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-3xl flex items-center justify-center text-3xl">✦</div>
+                <h1 class="title text-4xl font-bold tracking-tighter">NexusHub</h1>
+            </div>
+            <div class="flex gap-8 text-lg">
+                <a href="#" onclick="showSection('videos')" class="hover:text-violet-400">Videos</a>
+                <a href="#" onclick="showSection('chat')" class="hover:text-violet-400">Chat</a>
+                <a href="#" onclick="showSection('trends')" class="hover:text-violet-400">Trends</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sección Videos -->
+    <div id="videosSection" class="pt-28 pb-12 max-w-7xl mx-auto px-6">
+        <h2 class="text-5xl font-bold mb-10 title">Videos</h2>
+        
+        <button onclick="uploadVideoFromGallery()" 
+                class="mb-8 bg-violet-600 hover:bg-violet-500 px-8 py-4 rounded-2xl font-semibold flex items-center gap-3">
+            <i class="fa-solid fa-upload"></i> Subir Video desde Galería
+        </button>
+
+        <div id="videoFeed" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Videos se agregarán aquí dinámicamente -->
+        </div>
+    </div>
+
+    <!-- Sección Chat -->
+    <div id="chatSection" class="pt-28 pb-12 max-w-7xl mx-auto px-6 hidden">
+        <h2 class="text-5xl font-bold mb-8 title">Chat Global</h2>
+        <div id="chatMessages" class="h-96 overflow-y-auto bg-zinc-900/50 rounded-3xl p-6 mb-6"></div>
+        <div class="flex gap-4">
+            <input id="chatInput" type="text" placeholder="Mensaje seguro..." 
+                   class="flex-1 bg-zinc-900 border border-white/10 rounded-2xl px-6 py-5"
+                   onkeypress="if(event.key==='Enter') sendChat()">
+            <button onclick="sendChat()" class="px-10 bg-violet-600 rounded-2xl font-semibold">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        // ==================== REGISTRO OBLIGATORIO ====================
+        function completeRegister() {
+            const username = document.getElementById("username").value.trim();
+            const birthdate = document.getElementById("birthdate").value;
+            const captcha = document.getElementById("captcha").value;
+
+            if (!username || !birthdate) {
+                alert("Por favor completa todos los campos");
+                return;
+            }
+            if (captcha !== "13") {
+                alert("Captcha incorrecto");
+                return;
+            }
+
+            // Filtro simple de nombre inapropiado
+            if (/puta|puto|mierda|fuck|shit/i.test(username)) {
+                alert("Nombre no permitido");
+                return;
+            }
+
+            document.getElementById("registerModal").style.display = "none";
+            alert(`¡Bienvenido, ${username}!`);
+        }
+
+        // ==================== FILTRO DE GROSERÍAS ====================
+        const badWords = ["puta","puto","mierda","joder","cabron","pendejo","verga","coño","hijueputa","gonorrea","ctm","weon","fuck","shit","bitch","asshole","madarchod","bhenchod","сука","блядь"];
+
+        function filterText(text) {
+            let filtered = text;
+            badWords.forEach(word => {
+                const regex = new RegExp(word, "gi");
+                filtered = filtered.replace(regex, "●●●");
+            });
+            return filtered;
+        }
+
+        // ==================== CHAT ====================
+        function sendChat() {
+            const input = document.getElementById("chatInput");
+            if (!input.value.trim()) return;
+
+            const safeMsg = filterText(input.value);
+
+            const msg = document.createElement("div");
+            msg.className = "mb-4";
+            msg.innerHTML = `<span class="text-violet-400">Usuario:</span> ${safeMsg}`;
+            document.getElementById("chatMessages").appendChild(msg);
+            document.getElementById("chatMessages").scrollTop = 9999;
+            input.value = "";
+        }
+
+        // ==================== SUBIR VIDEO DESDE GALERÍA ====================
+        function uploadVideoFromGallery() {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "video/*";
+            input.onchange = function(e) {
+                if (e.target.files.length > 0) {
+                    const fileName = e.target.files[0].name;
+                    addVideoToFeed(fileName);
+                    alert(`Video "${fileName}" subido correctamente!`);
+                }
+            };
+            input.click();
+        }
+
+        function addVideoToFeed(fileName) {
+            const feed = document.getElementById("videoFeed");
+            const card = document.createElement("div");
+            card.className = "glass rounded-3xl overflow-hidden";
+            card.innerHTML = `
+                <div class="h-64 bg-zinc-800 flex items-center justify-center text-6xl">🎥</div>
+                <div class="p-6">
+                    <p class="font-medium">${fileName}</p>
+                    <div class="flex gap-6 mt-6 text-sm">
+                        <button onclick="likeVideo(this)" class="flex items-center gap-2 hover:text-red-400">
+                            <i class="fa-solid fa-heart"></i> <span>0</span>
+                        </button>
+                        <button onclick="commentVideo(this)" class="flex items-center gap-2 hover:text-blue-400">
+                            <i class="fa-solid fa-comment"></i> Comentar
+                        </button>
+                        <button onclick="shareVideo()" class="flex items-center gap-2 hover:text-emerald-400">
+                            <i class="fa-solid fa-share"></i> Compartir
+                        </button>
+                    </div>
+                </div>
+            `;
+            feed.appendChild(card);
+        }
+
+        function likeVideo(btn) {
+            let count = parseInt(btn.querySelector("span").textContent);
+            btn.querySelector("span").textContent = count + 1;
+            btn.classList.add("text-red-500");
+        }
+
+        function commentVideo(btn) {
+            const comment = prompt("Escribe tu comentario:");
+            if (comment) alert("Comentario enviado: " + filterText(comment));
+        }
+
+        function shareVideo() {
+            alert("Enlace copiado para compartir");
+        }
+
+        // ==================== NAVEGACIÓN ENTRE SECCIONES ====================
+        function showSection(section) {
+            document.getElementById("videosSection").classList.add("hidden");
+            document.getElementById("chatSection").classList.add("hidden");
+            
+            if (section === "videos") document.getElementById("videosSection").classList.remove("hidden");
+            if (section === "chat") document.getElementById("chatSection").classList.remove("hidden");
+        }
+
+        // ==================== INICIO ====================
+        window.onload = () => {
+            // Mostrar registro al cargar
+            document.getElementById("registerModal").style.display = "flex";
+        };
+    </script>
+</body>
+</html>
