@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusHub • Comunidad Creativa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .title { font-family: 'Space Grotesk', sans-serif; }
+        .glass { background: rgba(20, 20, 40, 0.95); backdrop-filter: blur(28px); border: 1px solid rgba(167, 139, 250, 0.3); }
+        .no-capture { user-select: none; -webkit-user-select: none; }
+        .message { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-zinc-950 via-purple-950 to-black text-white min-h-screen no-capture">
+
+    <!-- Registro Obligatorio -->
+    <div id="registerModal" class="fixed inset-0 bg-black/95 flex items-center justify-center z-[100]">
+        <div class="glass rounded-3xl p-10 max-w-md w-full mx-4">
+            <h2 class="title text-5xl font-bold text-center mb-10">Bienvenido a NexusHub</h2>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="block text-sm mb-2 text-zinc-300">Nombre de usuario</label>
+                    <input id="regUsername" type="text" placeholder="Tu nombre visible" 
+                           class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 text-lg focus:outline-none focus:border-violet-500">
+                </div>
+                <div>
+                    <label class="block text-sm mb-2 text-zinc-300">Fecha de nacimiento</label>
+                    <input id="regBirthdate" type="date" class="w-full bg-zinc-900 border border-white/10 rounded-2xl px-6 py-4 text-lg">
+                </div>
+            </div>
+
+            <button onclick="registerUser()" 
+                    class="mt-10 w-full py-5 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-2xl font-semibold text-xl hover:scale-105 transition">
+                Entrar a NexusHub
+            </button>
+            <p class="text-center text-xs text-zinc-500 mt-6">Tu información se guarda solo en este dispositivo</p>
+        </div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-11 h-11 bg-gradient-to-br from-violet-500 to-fuchsia-500 rounded-3xl flex items-center justify-center text-3xl animate-pulse">✦</div>
+                <h1 class="title text-4xl font-bold tracking-tighter">NexusHub</h1>
+            </div>
+            <div class="flex gap-8 text-lg font-medium">
+                <a href="#" onclick="showSection('videos')" class="hover:text-violet-400">Videos</a>
+                <a href="#" onclick="showSection('chat')" class="hover:text-violet-400">Chat</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sección Videos -->
+    <div id="videosSection" class="pt-28 pb-12 max-w-7xl mx-auto px-6">
+        <h2 class="title text-5xl font-bold mb-8">Videos</h2>
+        <button onclick="uploadVideo()" class="mb-8 bg-violet-600 hover:bg-violet-500 px-8 py-4 rounded-2xl font-semibold flex items-center gap-3">
+            <i class="fa-solid fa-upload"></i> Subir Video desde Galería
+        </button>
+        <div id="videoFeed" class="grid grid-cols-1 md:grid-cols-2 gap-8"></div>
+    </div>
+
+    <!-- Sección Chat -->
+    <div id="chatSection" class="pt-28 pb-12 max-w-7xl mx-auto px-6 hidden">
+        <h2 class="title text-5xl font-bold mb-8">Chat Global</h2>
+        <div id="chatMessages" class="h-96 overflow-y-auto bg-zinc-900/50 rounded-3xl p-6 mb-6 space-y-4"></div>
+        <div class="flex gap-4">
+            <input id="chatInput" type="text" placeholder="Escribe un mensaje seguro..." 
+                   class="flex-1 bg-zinc-900 border border-white/10 rounded-2xl px-6 py-5 focus:outline-none focus:border-violet-500"
+                   onkeypress="if(event.key==='Enter') sendChatMessage()">
+            <button onclick="sendChatMessage()" class="px-10 bg-violet-600 rounded-2xl font-semibold">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        let currentUsername = "";
+
+        // ==================== REGISTRO ====================
+        function registerUser() {
+            const username = document.getElementById("regUsername").value.trim();
+            const birthdate = document.getElementById("regBirthdate").value;
+
+            if (!username || !birthdate) {
+                alert("Por favor completa todos los campos");
+                return;
+            }
+            if (username.length < 3) {
+                alert("El nombre debe tener al menos 3 caracteres");
+                return;
+            }
+
+            currentUsername = username;
+            localStorage.setItem("nexusUsername", username);
+            localStorage.setItem("nexusBirthdate", birthdate);
+
+            document.getElementById("registerModal").style.display = "none";
+            alert(`¡Bienvenido, ${username}!`);
+            
+            // Cargar datos guardados
+            loadSavedMessages();
+        }
+
+        // ==================== FILTRO GROSERÍAS ====================
+        const badWords = ["puta","puto","mierda","joder","cabron","pendejo","verga","coño","hijueputa","gonorrea","ctm","weon","fuck","shit","bitch","asshole","madarchod","bhenchod","сука","блядь"];
+
+        function filterText(text) {
+            let filtered = text;
+            badWords.forEach(word => {
+                const regex = new RegExp(word, "gi");
+                filtered = filtered.replace(regex, "●●●");
+            });
+            return filtered;
+        }
+
+        // ==================== CHAT GLOBAL ====================
+        function sendChatMessage() {
+            const input = document.getElementById("chatInput");
+            if (!input.value.trim() || !currentUsername) return;
+
+            const safeMsg = filterText(input.value);
+            const time = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+            const msgHTML = `
+                <div class="message flex gap-4">
+                    <div class="w-9 h-9 bg-gradient-to-br from-violet-500 to-pink-500 rounded-2xl flex-shrink-0"></div>
+                    <div class="flex-1">
+                        <p class="font-medium text-violet-300">${currentUsername} <span class="text-xs text-zinc-500">${time}</span></p>
+                        <p class="text-zinc-200">${safeMsg}</p>
+                        <button onclick="deleteMessage(this)" class="text-xs text-red-400 hover:text-red-500 mt-1">Eliminar</button>
+                    </div>
+                </div>
+            `;
+
+            const chat = document.getElementById("chatMessages");
+            chat.innerHTML += msgHTML;
+            chat.scrollTop = chat.scrollHeight;
+
+            // Guardar en localStorage
+            saveMessage(currentUsername, safeMsg, time);
+
+            input.value = "";
+        }
+
+        function deleteMessage(btn) {
+            if (confirm("¿Eliminar este mensaje?")) {
+                btn.parentElement.parentElement.remove();
+            }
+        }
+
+        function saveMessage(user, msg, time) {
+            let messages = JSON.parse(localStorage.getItem("nexusMessages") || "[]");
+            messages.push({user, msg, time});
+            if (messages.length > 50) messages.shift(); // Mantener solo 50 mensajes
+            localStorage.setItem("nexusMessages", JSON.stringify(messages));
+        }
+
+        function loadSavedMessages() {
+            const messages = JSON.parse(localStorage.getItem("nexusMessages") || "[]");
+            const chat = document.getElementById("chatMessages");
+            chat.innerHTML = "";
+            messages.forEach(m => {
+                const html = `
+                    <div class="message flex gap-4">
+                        <div class="w-9 h-9 bg-gradient-to-br from-violet-500 to-pink-500 rounded-2xl flex-shrink-0"></div>
+                        <div class="flex-1">
+                            <p class="font-medium text-violet-300">${m.user} <span class="text-xs text-zinc-500">${m.time}</span></p>
+                            <p class="text-zinc-200">${m.msg}</p>
+                        </div>
+                    </div>
+                `;
+                chat.innerHTML += html;
+            });
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // ==================== VIDEOS ====================
+        function uploadVideo() {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.accept = "video/*";
+            input.onchange = function(e) {
+                if (e.target.files[0]) {
+                    const name = e.target.files[0].name;
+                    addVideoCard(name);
+                }
+            };
+            input.click();
+        }
+
+        function addVideoCard(filename) {
+            const feed = document.getElementById("videoFeed");
+            const card = document.createElement("div");
+            card.className = "glass rounded-3xl overflow-hidden cursor-pointer";
+            card.innerHTML = `
+                <div class="h-64 bg-zinc-800 flex items-center justify-center text-7xl relative">
+                    🎥
+                    <div class="absolute bottom-4 right-4 bg-black/70 px-3 py-1 rounded-full text-xs">Nuevo</div>
+                </div>
+                <div class="p-6">
+                    <p class="font-medium text-lg">${filename}</p>
+                    <div class="flex justify-between mt-6 text-sm">
+                        <button onclick="likeVideo(this)" class="flex items-center gap-2 hover:text-red-400"><i class="fa-solid fa-heart"></i> <span>0</span></button>
+                        <button onclick="commentVideo(this)" class="hover:text-blue-400">Comentar</button>
+                        <button onclick="shareVideo()" class="hover:text-emerald-400">Compartir</button>
+                    </div>
+                </div>
+            `;
+            card.onclick = () => alert(`Reproduciendo video: ${filename}`);
+            feed.appendChild(card);
+        }
+
+        function likeVideo(btn) {
+            let likes = parseInt(btn.querySelector("span").textContent);
+            btn.querySelector("span").textContent = likes + 1;
+            btn.classList.add("text-red-500");
+        }
+
+        function commentVideo(btn) {
+            const comment = prompt("Escribe tu comentario:");
+            if (comment) alert("Comentario: " + filterText(comment));
+        }
+
+        function shareVideo() {
+            alert("Enlace copiado para compartir");
+        }
+
+        // ==================== NAVEGACIÓN ====================
+        function showSection(section) {
+            document.getElementById("videosSection").classList.add("hidden");
+            document.getElementById("chatSection").classList.add("hidden");
+
+            if (section === "videos") document.getElementById("videosSection").classList.remove("hidden");
+            if (section === "chat") document.getElementById("chatSection").classList.remove("hidden");
+        }
+
+        // ==================== INICIO ====================
+        window.onload = () => {
+            const savedUser = localStorage.getItem("nexusUsername");
+            if (savedUser) {
+                currentUsername = savedUser;
+                document.getElementById("registerModal").style.display = "none";
+                loadSavedMessages();
+            } else {
+                document.getElementById("registerModal").style.display = "flex";
+            }
+        };
+    </script>
+</body>
+</html>
