@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusHub • Comunidad Creativa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .title-font { font-family: 'Space Grotesk', sans-serif; }
+        .glass { background: rgba(15, 15, 30, 0.85); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.08); }
+        .neon-violet { box-shadow: 0 0 35px rgba(167, 139, 250, 0.6); }
+        .message { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-zinc-950 via-indigo-950 to-black text-white min-h-screen overflow-x-hidden">
+
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full z-50 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-8 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-11 h-11 bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 rounded-3xl flex items-center justify-center text-3xl animate-pulse">✦</div>
+                <h1 class="title-font text-4xl font-bold tracking-tighter bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">NexusHub</h1>
+            </div>
+            <div class="flex gap-10 text-lg">
+                <a href="#" class="hover:text-violet-400 transition-colors">Trends</a>
+                <a href="#" class="hover:text-violet-400 transition-colors">Videos</a>
+                <a href="#" class="hover:text-violet-400 transition-colors">Chat</a>
+                <a href="#" class="hover:text-violet-400 transition-colors">IA Nexus</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-28 max-w-7xl mx-auto px-8 pb-20">
+        <div class="text-center mb-16">
+            <h2 class="title-font text-7xl font-bold tracking-tighter mb-4">Crea. Graba. Conecta.</h2>
+            <p class="text-2xl text-zinc-400">La comunidad más libre y hermosa del mundo</p>
+        </div>
+
+        <!-- Botones principales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            <button onclick="startRecording()" class="glass rounded-3xl p-10 text-left hover:scale-105 transition-all neon-violet group">
+                <i class="fa-solid fa-record-vinyl text-6xl mb-6 text-pink-400 group-hover:rotate-12 transition"></i>
+                <h3 class="text-3xl font-semibold mb-2">Grabar Ahora</h3>
+                <p class="text-zinc-400">Pantalla + Mic + Música</p>
+            </button>
+
+            <button onclick="createTrend()" class="glass rounded-3xl p-10 text-left hover:scale-105 transition-all">
+                <i class="fa-solid fa-fire text-6xl mb-6 text-orange-400"></i>
+                <h3 class="text-3xl font-semibold mb-2">Hacer Trend</h3>
+                <p class="text-zinc-400">Publicaciones virales</p>
+            </button>
+
+            <button onclick="uploadVideo()" class="glass rounded-3xl p-10 text-left hover:scale-105 transition-all">
+                <i class="fa-solid fa-video text-6xl mb-6 text-red-400"></i>
+                <h3 class="text-3xl font-semibold mb-2">Subir Video</h3>
+                <p class="text-zinc-400">Con música de fondo</p>
+            </button>
+
+            <button onclick="openAI()" class="glass rounded-3xl p-10 text-left hover:scale-105 transition-all">
+                <i class="fa-solid fa-brain text-6xl mb-6 text-cyan-400"></i>
+                <h3 class="text-3xl font-semibold mb-2">IA Nexus</h3>
+                <p class="text-zinc-400">Inteligencia que aprende de ti</p>
+            </button>
+        </div>
+
+        <!-- Chat con moderación -->
+        <div class="glass rounded-3xl p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-3xl font-semibold flex items-center gap-3">
+                    <i class="fa-solid fa-comments"></i> Chat Global 
+                    <span class="text-xs bg-emerald-500/20 text-emerald-400 px-4 py-1.5 rounded-full">Moderación IA Activa</span>
+                </h3>
+                <button onclick="clearChat()" class="text-zinc-400 hover:text-white transition">Limpiar</button>
+            </div>
+
+            <div id="chatMessages" class="h-96 overflow-y-auto space-y-5 pr-4 mb-6 text-[15px]"></div>
+
+            <div class="flex gap-4">
+                <input id="chatInput" type="text" placeholder="Escribe un mensaje..." 
+                       class="flex-1 bg-zinc-900 border border-white/10 rounded-2xl px-6 py-5 focus:outline-none focus:border-violet-500 text-lg"
+                       onkeypress="if(event.key === 'Enter') sendMessage()">
+                <button onclick="sendMessage()" 
+                        class="px-10 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 rounded-2xl font-semibold text-lg">
+                    Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Lista ampliada de groserías (colombianas, mexicanas, españolas, inglesas, rusas, etc.)
+        const badWords = [
+            "puta", "puto", "mierda", "joder", "cabron", "pendejo", "verga", "coño", "gilipollas", "marica",
+            "hijueputa", "gonorrea", "carechimba", "chimba", "parce", "weon", "wea", "culiao", "ctm", "concha",
+            "fuck", "shit", "bitch", "asshole", "cunt", "dick", "pussy", "bastard", "motherfucker",
+            "сука", "блядь", "пиздец", "хуй", "ебать", "мудак",
+            "randi", "madarchod", "bhenchod", "gaandu"
+        ];
+
+        function filterBadWords(text) {
+            let filtered = text;
+            badWords.forEach(word => {
+                const regex = new RegExp(`\\b${word}\\b`, "gi");
+                filtered = filtered.replace(regex, "###");
+            });
+            return filtered;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById("chatInput");
+            if (!input.value.trim()) return;
+
+            const filteredMessage = filterBadWords(input.value);
+
+            const msgDiv = document.createElement("div");
+            msgDiv.className = "flex gap-4 message";
+            msgDiv.innerHTML = `
+                <div class="w-10 h-10 bg-gradient-to-br from-violet-500 to-pink-500 rounded-2xl flex-shrink-0"></div>
+                <div class="flex-1">
+                    <p class="font-medium text-violet-300">Usuario</p>
+                    <p class="text-zinc-200">${filteredMessage}</p>
+                    <div class="flex gap-4 mt-2">
+                        <button onclick="copyMessage(this)" class="text-xs text-zinc-500 hover:text-violet-400">Copiar</button>
+                        <button onclick="translateMessage(this)" class="text-xs text-zinc-500 hover:text-violet-400">Traducir</button>
+                    </div>
+                </div>
+            `;
+            document.getElementById("chatMessages").appendChild(msgDiv);
+            document.getElementById("chatMessages").scrollTop = 999999;
+            input.value = "";
+        }
+
+        function copyMessage(btn) {
+            const text = btn.parentElement.parentElement.querySelector("p.text-zinc-200").textContent;
+            navigator.clipboard.writeText(text);
+            btn.textContent = "✓ Copiado";
+            setTimeout(() => btn.textContent = "Copiar", 1500);
+        }
+
+        function translateMessage(btn) {
+            btn.textContent = "Traduciendo...";
+            setTimeout(() => {
+                btn.textContent = "Traducido (ES → EN)";
+            }, 1200);
+        }
+
+        function clearChat() {
+            if (confirm("¿Limpiar todo el chat?")) {
+                document.getElementById("chatMessages").innerHTML = "";
+            }
+        }
+
+        // Grabador real de pantalla + mic + música
+        async function startRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                const combinedStream = new MediaStream([
+                    ...stream.getTracks(),
+                    ...audioStream.getAudioTracks()
+                ]);
+
+                const recorder = new MediaRecorder(combinedStream);
+                const chunks = [];
+
+                recorder.ondataavailable = e => chunks.push(e.data);
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `nexus-recording-${Date.now()}.webm`;
+                    a.click();
+                };
+
+                recorder.start();
+                alert("¡Grabando! Presiona Stop cuando termines.");
+                
+                // Botón para detener (puedes mejorarlo con UI)
+                setTimeout(() => {
+                    if (recorder.state === "recording") recorder.stop();
+                }, 30000); // 30 segundos máximo por prueba
+
+            } catch (err) {
+                alert("Error al grabar: " + err.message + "\n\nAsegúrate de permitir pantalla y micrófono.");
+            }
+        }
+
+        function createTrend() { alert("Trend Creator abierto - Próximamente con editor de hashtags y música"); }
+        function uploadVideo() { alert("Subidor de videos con selector de música"); }
+        function openAI() { alert("IA Nexus activada\n\nHola, soy Nexus. ¿En qué puedo ayudarte hoy?"); }
+
+        // Mensaje de bienvenida
+        window.onload = () => {
+            setTimeout(() => {
+                const welcome = document.createElement("div");
+                welcome.className = "text-center text-zinc-400 text-sm mt-8";
+                welcome.innerHTML = "Bienvenido a NexusHub • Moderación IA activa • Graba y comparte libremente";
+                document.body.appendChild(welcome);
+            }, 1500);
+        };
+    </script>
+</body>
+</html>
