@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Obby [BETA] - Temporada 2</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Pantalla de carga -->
+  <div id="loader" class="loader-screen">
+    <div class="spinner"></div>
+    <p class="loading-text">Cargando Obby [BETA]...</p>
+  </div>
+
+  <div class="content" style="display: none;">
+
+    <div class="background"></div>
+
+    <header>
+      <!-- Logo del juego -->
+      <div class="logo-container">
+        <img src="https://assetgame.roblox.com/Game/Tools/ThumbnailAsset.ashx?aid=96790255677385&fmt=png&wd=512&ht=512" 
+             alt="Obby [BETA] Logo" class="game-logo">
+      </div>
+      
+      <h1 class="title">Obby <span class="beta">[BETA]</span></h1>
+      <p class="subtitle">¡Temporada 2 - Supera los obstáculos más épicos!</p>
+    </header>
+
+    <main>
+      <!-- Botones principales -->
+      <div class="buttons">
+        <a href="https://www.roblox.com/games/96790255677385/TEMPORADA-2-Obby-BETA" target="_blank" class="btn play">
+          <i class="fas fa-play"></i> JUGAR EN ROBLOX
+        </a>
+        
+        <a href="https://discord.gg/TMearmbRAY" target="_blank" class="btn discord">
+          <i class="fab fa-discord"></i> Unirse al Discord
+        </a>
+        
+        <a href="https://youtube.com/@obbybeta" target="_blank" class="btn youtube">
+          <i class="fab fa-youtube"></i> Suscribirse al YouTube
+        </a>
+      </div>
+
+      <!-- Contador de visitas -->
+      <div class="visit-counter">
+        <p>👥 <span id="visit-count">2400</span> visitas</p>
+      </div>
+
+      <!-- Sección de Actualizaciones -->
+      <section class="updates">
+        <h2>Última Actualización</h2>
+        <div class="update-card">
+          <span class="date">19 de Abril 2026</span>
+          <h3>v1.2 - Beta Update</h3>
+          <ul>
+            <li>Nuevos 10 stages con parkour más difícil</li>
+            <li>Mejor sistema de checkpoints</li>
+            <li>Fix de bugs en mobile</li>
+            <li>Nuevos efectos visuales</li>
+          </ul>
+          <p class="status">✅ En vivo ahora</p>
+        </div>
+
+        <h2>Historial de Actualizaciones</h2>
+        <div id="update-list">
+          <div class="old-update">
+            <span class="date">15 de Abril 2026</span>
+            <p>v1.1 - Lanzamiento inicial de Temporada 2</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Hecho con ❤️ para la comunidad de Obby [BETA]</p>
+      <p>¡Únete, juega y no te pierdas ninguna actualización!</p>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
